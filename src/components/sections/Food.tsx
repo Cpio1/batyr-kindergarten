@@ -1,19 +1,20 @@
 "use client";
 
+import Image from "next/image";
 import { Info, MessageCircle } from "lucide-react";
-import { Apple, Carrot, FruitPair, MilkCookie, Pear, Porridge, Soup, Strawberry, VeggiePlate } from "../decor/Illustrations";
-import { Sparkle, Star, Wave } from "../decor/Shapes";
+import { Flower, Heart, Sparkle, Star, Wave } from "../decor/Shapes";
 import { SectionHeading } from "../ui/SectionHeading";
 import { useT } from "@/lib/i18n";
-import { waHref } from "@/lib/site";
+import { waHref, withBasePath } from "@/lib/site";
+import { stock } from "@/lib/stock";
 
-/** Пять приёмов пищи — у каждого свой цвет, форма и иллюстрация. */
+/** Пять приёмов пищи — у каждого свой цвет, форма рамки и фото для примера (src/lib/stock.ts). */
 const MEALS = [
-  { Art: Porridge, bg: "bg-sun", soft: "bg-sun-soft", shape: "rounded-[50%_50%_44%_56%/56%_52%_48%_44%]", tilt: "md:-rotate-2" },
-  { Art: FruitPair, bg: "bg-mint", soft: "bg-mint-soft", shape: "rounded-[40px_40px_40px_12px]", tilt: "md:rotate-2" },
-  { Art: Soup, bg: "bg-peach", soft: "bg-peach-soft", shape: "rounded-full", tilt: "md:-rotate-1" },
-  { Art: MilkCookie, bg: "bg-sky", soft: "bg-sky-soft", shape: "rounded-[40px_12px_40px_40px]", tilt: "md:rotate-1" },
-  { Art: VeggiePlate, bg: "bg-lilac", soft: "bg-lilac-soft", shape: "rounded-[44%_56%_50%_50%/50%_44%_56%_50%]", tilt: "md:-rotate-2" },
+  { bg: "bg-sun", soft: "bg-sun-soft", shape: "rounded-[50%_50%_44%_56%/56%_52%_48%_44%]", tilt: "md:-rotate-2" },
+  { bg: "bg-mint", soft: "bg-mint-soft", shape: "rounded-[40px_40px_40px_12px]", tilt: "md:rotate-2" },
+  { bg: "bg-peach", soft: "bg-peach-soft", shape: "rounded-full", tilt: "md:-rotate-1" },
+  { bg: "bg-sky", soft: "bg-sky-soft", shape: "rounded-[40px_12px_40px_40px]", tilt: "md:rotate-1" },
+  { bg: "bg-lilac", soft: "bg-lilac-soft", shape: "rounded-[44%_56%_50%_50%/50%_44%_56%_50%]", tilt: "md:-rotate-2" },
 ] as const;
 
 export function Food() {
@@ -22,11 +23,11 @@ export function Food() {
     <section id="food" aria-labelledby="food-title" className="section bg-gradient-to-b from-peach-soft via-[#FFF4EC] to-cream">
       <Wave className="absolute inset-x-0 -top-px h-6 w-full md:h-10" color="#FFFFFF" flip />
 
-      {/* Фрукты и овощи по краям */}
-      <Apple className="absolute top-4 left-[3%] w-9 animate-float md:top-[14%] md:w-14" />
-      <Carrot className="absolute right-[3%] bottom-[12%] hidden w-14 animate-sway md:block" />
-      <Strawberry className="absolute top-[12%] right-[5%] hidden w-12 animate-float-slow md:block" />
-      <Pear className="absolute bottom-[10%] left-[4%] hidden w-12 animate-float md:block" />
+      {/* Украшения по краям */}
+      <Flower className="absolute top-[14%] left-[3%] hidden w-10 animate-sway md:block" color="#A9E5C1" />
+      <Heart className="absolute right-[3%] bottom-[12%] hidden w-9 animate-float md:block" />
+      <Star className="absolute top-[12%] right-[5%] hidden w-9 animate-twinkle md:block" />
+      <Sparkle className="absolute bottom-[10%] left-[4%] hidden w-6 animate-twinkle md:block" color="#72C9F8" />
       <Sparkle className="absolute top-[30%] right-[14%] hidden w-5 animate-twinkle lg:block" color="#FFD966" />
 
       <div className="shell relative">
@@ -40,7 +41,7 @@ export function Food() {
           <ol className="relative flex flex-wrap justify-center gap-x-5 gap-y-8 lg:flex-nowrap lg:gap-6">
             {t.food.meals.map((name, i) => {
               const m = MEALS[i];
-              const Art = m.Art;
+              const img = stock.food[i];
               return (
                 <li
                   key={name}
@@ -49,8 +50,15 @@ export function Food() {
                   className={`group w-[calc((100%-2.5rem)/3)] max-w-[210px] lg:w-auto lg:flex-1 ${i % 2 ? "lg:translate-y-3" : ""}`}
                 >
                   <div className={`card card-hover flex flex-col items-center px-3 pt-4 pb-5 text-center lg:pb-4 ${m.tilt}`}>
-                    <div className={`relative grid aspect-square w-[min(130px,72%)] lg:w-[clamp(84px,15vh,130px)] place-items-center ${m.shape} ${m.bg} transition-transform duration-500 group-hover:scale-105 group-hover:rotate-3`}>
-                      <Art className="w-[74%]" />
+                    <div className={`relative aspect-square w-[min(150px,84%)] p-[6px] lg:w-[clamp(100px,17vh,150px)] ${m.shape} ${m.bg} transition-transform duration-500 group-hover:scale-105 group-hover:rotate-3`}>
+                      <Image
+                        src={withBasePath(img.src)}
+                        alt={t.food.photoAlts[i]}
+                        width={img.width}
+                        height={img.height}
+                        sizes="150px"
+                        className={`size-full object-cover ring-2 ring-white/70 ${m.shape}`}
+                      />
                       <span className="absolute -top-1 -right-1 grid size-9 place-items-center rounded-full bg-ink text-[15px] font-black text-white ring-4 ring-white">{i + 1}</span>
                     </div>
                     <h3 className="mt-4 lg:mt-3 text-[17px] leading-tight font-black text-ink lg:text-[18px]">{name}</h3>
@@ -64,14 +72,14 @@ export function Food() {
 
         {/* Mobile: вертикальная лента с точками-соединителями */}
         <ol className="relative mt-7 space-y-3 md:hidden">
-          <span className="absolute top-6 bottom-6 left-[38px] border-l-[3px] border-dotted border-peach" aria-hidden="true" />
+          <span className="absolute top-6 bottom-6 left-[46px] border-l-[3px] border-dotted border-peach" aria-hidden="true" />
           {t.food.meals.map((name, i) => {
             const m = MEALS[i];
-            const Art = m.Art;
+            const img = stock.food[i];
             return (
               <li key={name} data-reveal className={`relative flex items-center gap-3.5 rounded-[24px] bg-white p-2.5 pr-4 shadow-soft ${i % 2 ? "ml-3" : ""}`}>
-                <span className={`grid size-[56px] shrink-0 place-items-center ${m.shape} ${m.bg}`}>
-                  <Art className="w-[42px]" />
+                <span className={`size-[72px] shrink-0 p-1 ${m.shape} ${m.bg}`}>
+                  <Image src={withBasePath(img.src)} alt={t.food.photoAlts[i]} width={img.width} height={img.height} sizes="72px" className={`size-full object-cover ${m.shape}`} />
                 </span>
                 <h3 className="min-w-0 flex-1 text-[16px] leading-tight font-black text-ink">{name}</h3>
                 <span className={`grid size-8 shrink-0 place-items-center rounded-full text-[14px] font-black text-ink ${m.soft}`}>{i + 1}</span>

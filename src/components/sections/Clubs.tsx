@@ -1,23 +1,31 @@
 "use client";
 
+import Image from "next/image";
 import { BookOpen, Music2 } from "lucide-react";
-import { AbcArt, DanceArt } from "../decor/Illustrations";
 import { CloudPuffy, Rainbow, Sparkle, Star } from "../decor/Shapes";
 import { SectionHeading } from "../ui/SectionHeading";
 import { useT } from "@/lib/i18n";
+import { withBasePath } from "@/lib/site";
+import { stock } from "@/lib/stock";
 
 const STYLE = {
   english: {
-    Art: AbcArt,
     Icon: BookOpen,
+    img: stock.clubs.english,
+    imgShape: "rounded-[28px_28px_28px_90px]",
+    mobileShape: "rounded-[28px_28px_28px_72px]",
+    focus: "object-center",
     panel: "bg-gradient-to-br from-sky-soft to-[#D3EEFD]",
     shape: "rounded-[32px_32px_32px_96px]",
     tag: "bg-sky-soft text-sky-deep",
     icon: "bg-sky text-ink",
   },
   dance: {
-    Art: DanceArt,
     Icon: Music2,
+    img: stock.clubs.dance,
+    imgShape: "rounded-[28px_90px_28px_28px]",
+    mobileShape: "rounded-[28px_28px_72px_28px]",
+    focus: "object-[62%_35%]",
     panel: "bg-gradient-to-br from-peach-soft to-[#FFE0D1]",
     shape: "rounded-[32px_32px_96px_32px]",
     tag: "bg-peach-soft text-peach-deep",
@@ -39,15 +47,24 @@ export function Clubs() {
         <ul className="mt-7 grid gap-4 md:grid-cols-2 md:gap-6 lg:mt-[clamp(20px,4.5vh,40px)] lg:gap-7">
           {t.clubs.items.map((c, i) => {
             const s = STYLE[c.key as keyof typeof STYLE];
-            const { Art, Icon } = s;
+            const { Icon, img } = s;
             return (
-              <li key={c.key} data-reveal style={{ ["--reveal-delay" as string]: `${i * 100}ms` }} className={`card card-hover overflow-hidden ${s.shape}`}>
+              <li key={c.key} data-reveal style={{ ["--reveal-delay" as string]: `${i * 100}ms` }} className={`group card card-hover overflow-hidden ${s.shape}`}>
                 {/* Desktop / tablet */}
                 <div className="hidden md:block lg:flex lg:items-stretch">
-                  <div className={`relative grid h-[200px] place-items-center lg:h-auto lg:min-h-[clamp(200px,34vh,280px)] lg:w-[42%] lg:shrink-0 ${s.panel}`}>
-                    <Star className="absolute top-5 right-6 w-7 animate-twinkle" />
-                    <Sparkle className="absolute bottom-6 left-6 w-5 animate-twinkle [animation-delay:-1.5s]" color="#fff" />
-                    <Art className="h-[86%] max-w-[86%] animate-float-slow lg:h-auto lg:w-[88%]" />
+                  <div className={`relative h-[240px] p-4 lg:h-auto lg:min-h-[clamp(210px,34vh,290px)] lg:w-[46%] lg:shrink-0 lg:p-3.5 ${s.panel}`}>
+                    <div className={`relative size-full overflow-hidden shadow-soft ring-4 ring-white ${s.imgShape}`}>
+                      <Image
+                        src={withBasePath(img.src)}
+                        alt={c.photoAlt}
+                        width={img.width}
+                        height={img.height}
+                        sizes="(min-width: 1024px) 260px, 50vw"
+                        className={`absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-105 ${s.focus}`}
+                      />
+                    </div>
+                    <Star className="absolute top-2 right-3 w-8 animate-twinkle drop-shadow" />
+                    <Sparkle className="absolute bottom-3 left-3 w-5 animate-twinkle [animation-delay:-1.5s]" color="#fff" />
                   </div>
                   <div className="p-6 lg:flex lg:flex-col lg:justify-center lg:p-6">
                     <div className="flex items-center gap-3">
@@ -69,9 +86,16 @@ export function Clubs() {
 
                 {/* Mobile */}
                 <div className="md:hidden">
-                  <div className={`relative grid h-[136px] place-items-center ${s.panel}`}>
-                    <Star className="absolute top-3 right-4 w-5 animate-twinkle" />
-                    <Art className="h-[88%] max-w-[78%]" />
+                  <div className={`relative h-[178px] p-2.5 ${s.panel}`}>
+                    <Image
+                      src={withBasePath(img.src)}
+                      alt={c.photoAlt}
+                      width={img.width}
+                      height={img.height}
+                      sizes="100vw"
+                      className={`size-full object-cover ring-[3px] ring-white ${s.mobileShape} ${s.focus}`}
+                    />
+                    <Star className="absolute top-1 right-2 w-6 animate-twinkle drop-shadow" />
                   </div>
                   <div className="p-4">
                     <h3 className="flex items-center gap-2.5 font-display text-[20px] font-black text-ink">

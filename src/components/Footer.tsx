@@ -79,6 +79,11 @@ export function Footer() {
           </span>
           <span>{t.footer.rights}</span>
         </div>
+        <p className="mt-2 text-[12px] text-white/45 md:pr-24">
+          <a href="https://www.pexels.com/" target="_blank" rel="noopener noreferrer" className="underline decoration-white/25 underline-offset-2 hover:text-white/70">
+            {t.footer.photoCredit}
+          </a>
+        </p>
       </div>
     </footer>
   );

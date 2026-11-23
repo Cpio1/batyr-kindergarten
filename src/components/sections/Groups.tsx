@@ -1,12 +1,14 @@
 "use client";
 
+import Image from "next/image";
 import { Check, Info } from "lucide-react";
-import { GroupBadge } from "../decor/Illustrations";
 import { Cloud, Sparkle, Squiggle, Star, Wave } from "../decor/Shapes";
 import { SectionHeading } from "../ui/SectionHeading";
 import { useT } from "@/lib/i18n";
+import { withBasePath } from "@/lib/site";
+import { stock } from "@/lib/stock";
 
-/** Оформление карточек: у каждой свой цвет, форма шапки и иллюстрация. */
+/** Оформление карточек: у каждой свой цвет, форма шапки и фото для примера (src/lib/stock.ts). */
 const CARDS = [
   { top: "bg-sun", soft: "bg-sun-soft", check: "text-sun-deep", shape: "rounded-[28px_28px_50%_50%/28px_28px_22px_22px]", num: "bg-white text-sun-deep" },
   { top: "bg-sky", soft: "bg-sky-soft", check: "text-sky-deep", shape: "rounded-[28px_28px_28px_80px]", num: "bg-white text-sky-deep" },
@@ -38,10 +40,19 @@ export function Groups() {
           {t.groups.items.map((g, i) => {
             const c = CARDS[i];
             return (
-              <li key={g.name} data-reveal style={{ ["--reveal-delay" as string]: `${i * 90}ms` }} className="card card-hover overflow-hidden">
-                <div className={`relative h-[clamp(96px,15vh,160px)] ${c.top} ${c.shape} grid place-items-center`}>
-                  <Sparkle className="absolute top-4 left-5 w-5 animate-twinkle" color="#fff" />
-                  <GroupBadge variant={i as 0 | 1 | 2} className="h-[78%] animate-float" />
+              <li key={g.name} data-reveal style={{ ["--reveal-delay" as string]: `${i * 90}ms` }} className="group card card-hover overflow-hidden">
+                <div className={`relative h-[clamp(150px,22vw,190px)] p-2 lg:h-[clamp(110px,18vh,190px)] ${c.top} ${c.shape}`}>
+                  <div className={`relative size-full overflow-hidden ${c.shape}`}>
+                    <Image
+                      src={withBasePath(stock.groups[i].src)}
+                      alt={t.groups.photoAlts[i]}
+                      width={stock.groups[i].width}
+                      height={stock.groups[i].height}
+                      sizes="(min-width: 1024px) 380px, 33vw"
+                      className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  </div>
+                  <Sparkle className="absolute top-4 left-5 w-5 animate-twinkle drop-shadow" color="#fff" />
                   <span className={`absolute -bottom-5 left-1/2 grid size-12 -translate-x-1/2 place-items-center rounded-full text-xl font-black shadow-soft ${c.num}`}>
                     {i + 1}
                   </span>
@@ -50,7 +61,7 @@ export function Groups() {
                   <h3 className="font-display text-[24px] font-black text-ink">{g.name}</h3>
                   <ul className="mt-4 space-y-2 text-left lg:mt-3 lg:space-y-1.5">
                     {t.groups.features.map((f) => (
-                      <li key={f} className={`flex items-center gap-2.5 rounded-2xl px-3 py-2 text-[14.5px] font-bold text-ink lg:py-1.5 ${c.soft}`}>
+                      <li key={f} className={`flex items-center gap-2.5 rounded-2xl px-3 py-2 text-[14.5px] font-bold text-ink lg:py-1 ${c.soft}`}>
                         <Check className={`size-[18px] shrink-0 ${c.check}`} strokeWidth={3} aria-hidden="true" />
                         {f}
                       </li>
@@ -68,8 +79,15 @@ export function Groups() {
             const c = CARDS[i];
             return (
               <li key={g.name} data-reveal className="card flex items-stretch overflow-hidden rounded-[26px]">
-                <div className={`relative grid w-[92px] shrink-0 place-items-center ${c.top}`}>
-                  <GroupBadge variant={i as 0 | 1 | 2} className="w-[78px]" />
+                <div className={`relative w-[108px] shrink-0 p-1.5 ${c.top}`}>
+                  <Image
+                    src={withBasePath(stock.groups[i].src)}
+                    alt={t.groups.photoAlts[i]}
+                    width={stock.groups[i].width}
+                    height={stock.groups[i].height}
+                    sizes="108px"
+                    className="size-full rounded-[20px_20px_20px_6px] object-cover"
+                  />
                 </div>
                 <div className="min-w-0 flex-1 p-3.5">
                   <h3 className="font-display text-[19px] font-black text-ink">{g.name}</h3>

@@ -263,7 +263,8 @@ img { -webkit-user-drag: none; }
 
 /* Плавающая кнопка не мешает меню и просмотру фото */
 body[data-menu="open"] .wa-float,
-body[data-lightbox="open"] .wa-float {
+body[data-lightbox="open"] .wa-float,
+body[data-gallery="open"] .wa-float {
   opacity: 0 !important;
   pointer-events: none !important;
 }

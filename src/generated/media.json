@@ -1,6 +1,97 @@
 {
-  "hero": null,
+  "hero": {
+    "name": "main-page.jpeg",
+    "src": "/images/gallery/main-page.jpeg",
+    "width": 1280,
+    "height": 720
+  },
+  "heroVideo": null,
   "about": null,
-  "gallery": [],
+  "gallery": [
+    {
+      "name": "image1.jpeg",
+      "src": "/images/gallery/image1.jpeg",
+      "width": 1600,
+      "height": 1062
+    },
+    {
+      "name": "image2.jpeg",
+      "src": "/images/gallery/image2.jpeg",
+      "width": 1600,
+      "height": 1062
+    },
+    {
+      "name": "image3.jpeg",
+      "src": "/images/gallery/image3.jpeg",
+      "width": 1600,
+      "height": 1074
+    },
+    {
+      "name": "image4.jpeg",
+      "src": "/images/gallery/image4.jpeg",
+      "width": 1600,
+      "height": 1074
+    },
+    {
+      "name": "image5.jpeg",
+      "src": "/images/gallery/image5.jpeg",
+      "width": 1600,
+      "height": 1074
+    },
+    {
+      "name": "image6.jpeg",
+      "src": "/images/gallery/image6.jpeg",
+      "width": 960,
+      "height": 1280
+    },
+    {
+      "name": "image7.jpeg",
+      "src": "/images/gallery/image7.jpeg",
+      "width": 1280,
+      "height": 960
+    },
+    {
+      "name": "image8.jpeg",
+      "src": "/images/gallery/image8.jpeg",
+      "width": 960,
+      "height": 1280
+    },
+    {
+      "name": "image9.jpeg",
+      "src": "/images/gallery/image9.jpeg",
+      "width": 960,
+      "height": 1280
+    },
+    {
+      "name": "image10.jpeg",
+      "src": "/images/gallery/image10.jpeg",
+      "width": 1280,
+      "height": 960
+    },
+    {
+      "name": "image11.jpeg",
+      "src": "/images/gallery/image11.jpeg",
+      "width": 1280,
+      "height": 960
+    },
+    {
+      "name": "image12.jpeg",
+      "src": "/images/gallery/image12.jpeg",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "name": "image13.jpeg",
+      "src": "/images/gallery/image13.jpeg",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "name": "image14.jpeg",
+      "src": "/images/gallery/image14.jpeg",
+      "width": 1280,
+      "height": 960
+    }
+  ],
   "documents": []
 }

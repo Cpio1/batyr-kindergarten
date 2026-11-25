@@ -1,34 +1,103 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowDown, Clock, MapPin } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowDown, Clock, MapPin, Volume2, VolumeX } from "lucide-react";
 import { KindergartenScene } from "../decor/Illustrations";
 import { Cloud, CloudPuffy, Flower, Rainbow, Sparkle, Star, Wave } from "../decor/Shapes";
 import { WhatsAppIcon } from "../ui/BrandIcons";
 import { useT } from "@/lib/i18n";
-import { heroPhoto } from "@/lib/media";
+import { heroPhoto, heroVideo } from "@/lib/media";
 import { onAnchorClick } from "@/lib/scroll";
 import { waHref, withBasePath } from "@/lib/site";
 
 const STAT_TONES = ["bg-sun-soft text-sun-deep", "bg-sky-soft text-sky-deep", "bg-mint-soft text-mint-deep"];
 
-/** Фото детского сада (если есть main-page.*) или иллюстрация — внутри органической формы. */
-function HeroVisual({ sizes, priority = false }: { sizes: string; priority?: boolean }) {
+/** Есть ли реальное фото/видео: тогда кадр широкий (не обрезаем детей по краям), иначе — квадратная иллюстрация. */
+const HAS_MEDIA = Boolean(heroVideo || heroPhoto);
+
+/**
+ * Видео первого экрана (main-page2.mp4). Запускается без звука — так браузеры (и iOS) разрешают автозапуск;
+ * кнопка включает и выключает звук. Если видео не загрузилось, остаётся фото-постер.
+ */
+function HeroVideo({ compact = false }: { compact?: boolean }) {
   const t = useT();
-  if (heroPhoto) {
-    return (
-      <Image
-        src={withBasePath(heroPhoto.src)}
-        alt={t.hero.photoAlt}
-        width={heroPhoto.width}
-        height={heroPhoto.height}
-        sizes={sizes}
-        priority={priority}
+  const ref = useRef<HTMLVideoElement>(null);
+  const [muted, setMuted] = useState(true);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    const v = ref.current;
+    if (!v) return;
+    v.muted = true;
+    v.play().catch(() => {
+      /* автозапуск запрещён (режим энергосбережения) — видео стартует по нажатию */
+    });
+  }, []);
+
+  if (!heroVideo || failed) return <HeroImage sizes={compact ? "100vw" : "(min-width: 1024px) 620px, 50vw"} />;
+
+  const toggle = () => {
+    const v = ref.current;
+    if (!v) return;
+    v.muted = !v.muted;
+    setMuted(v.muted);
+    if (v.paused) void v.play().catch(() => {});
+  };
+
+  return (
+    <>
+      <video
+        ref={ref}
         className="size-full object-cover"
-      />
-    );
-  }
-  return <KindergartenScene className="size-full" title={t.hero.artLabel} />;
+        style={{ objectPosition: "50% 40%" }}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        poster={heroPhoto ? withBasePath(heroPhoto.src) : undefined}
+        aria-label={t.hero.photoAlt}
+        onError={() => setFailed(true)}
+      >
+        <source src={withBasePath(heroVideo.src)} type={heroVideo.type} onError={() => setFailed(true)} />
+      </video>
+      <button
+        type="button"
+        onClick={toggle}
+        aria-pressed={!muted}
+        aria-label={muted ? t.hero.soundOn : t.hero.soundOff}
+        className={`absolute z-10 grid place-items-center rounded-full bg-white/95 text-ink shadow-lift transition hover:scale-105 ${
+          compact ? "top-3 right-3 size-10" : "top-5 right-6 size-12"
+        }`}
+      >
+        {muted ? <VolumeX className="size-5" aria-hidden="true" /> : <Volume2 className="size-5 text-sky-deep" aria-hidden="true" />}
+      </button>
+    </>
+  );
+}
+
+function HeroImage({ sizes, priority = false }: { sizes: string; priority?: boolean }) {
+  const t = useT();
+  if (!heroPhoto) return <KindergartenScene className="size-full" title={t.hero.artLabel} />;
+  return (
+    <Image
+      src={withBasePath(heroPhoto.src)}
+      alt={t.hero.photoAlt}
+      width={heroPhoto.width}
+      height={heroPhoto.height}
+      sizes={sizes}
+      priority={priority}
+      className="size-full object-cover"
+      style={{ objectPosition: "50% 40%" }}
+    />
+  );
+}
+
+/** Видео (если есть main-page2.mp4) → фото main-page.* → иллюстрация. */
+function HeroVisual({ sizes, priority = false, compact = false }: { sizes: string; priority?: boolean; compact?: boolean }) {
+  if (heroVideo) return <HeroVideo compact={compact} />;
+  return <HeroImage sizes={sizes} priority={priority} />;
 }
 
 function Title({ className }: { className: string }) {
@@ -93,11 +162,19 @@ export function Hero() {
           </div>
 
           {/* Визуал */}
-          <div data-reveal className="relative mx-auto aspect-square w-full max-w-[min(520px,calc(100svh-var(--header-h)-90px))] min-w-[300px]" style={{ ["--reveal-delay" as string]: "120ms" }}>
-            <div className="absolute -inset-4 blob-b bg-sun/70" aria-hidden="true" />
-            <div className="absolute -inset-1 blob-a bg-white" aria-hidden="true" />
-            <div className="absolute inset-2 overflow-hidden blob-a bg-sky-soft">
-              <HeroVisual sizes="(min-width: 1024px) 520px, 45vw" priority />
+          <div
+            data-reveal
+            className={`relative mx-auto w-full min-w-[300px] ${
+              HAS_MEDIA
+                ? "aspect-[3/2] max-w-[min(640px,calc((100svh-var(--header-h)-110px)*1.5))]"
+                : "aspect-square max-w-[min(520px,calc(100svh-var(--header-h)-90px))]"
+            }`}
+            style={{ ["--reveal-delay" as string]: "120ms" }}
+          >
+            <div className={`absolute -inset-4 bg-sun/70 ${HAS_MEDIA ? "leaf-alt rotate-[-2deg]" : "blob-b"}`} aria-hidden="true" />
+            <div className={`absolute -inset-1 bg-white ${HAS_MEDIA ? "leaf" : "blob-a"}`} aria-hidden="true" />
+            <div className={`absolute inset-2 overflow-hidden bg-sky-soft ${HAS_MEDIA ? "leaf" : "blob-a"}`}>
+              <HeroVisual sizes="(min-width: 1024px) 640px, 50vw" priority />
             </div>
             <Rainbow className="absolute -top-8 -left-10 w-32 animate-float lg:w-40" />
             <Cloud className="absolute top-[12%] -right-10 w-28 animate-float-slow lg:w-32" />
@@ -124,10 +201,10 @@ export function Hero() {
         <Title className="relative mt-4 text-balance font-display text-[clamp(28px,8.4vw,36px)] leading-[1.12] font-black tracking-tight text-ink" />
         <p className="relative mt-4 text-pretty text-[15.5px] leading-relaxed text-ink-soft">{t.hero.text}</p>
 
-        <div className="relative mx-auto mt-7 aspect-[5/4] w-full max-w-[min(400px,44svh)]">
-          <div className="absolute -inset-2 blob-c bg-sun/70" aria-hidden="true" />
-          <div className="absolute inset-1 overflow-hidden blob-c bg-sky-soft ring-4 ring-white">
-            <HeroVisual sizes="100vw" />
+        <div className={`relative mx-auto mt-7 w-full ${HAS_MEDIA ? "aspect-[16/11] max-w-[min(480px,calc(44svh*16/11))]" : "aspect-[5/4] max-w-[min(400px,44svh)]"}`}>
+          <div className={`absolute -inset-2 bg-sun/70 ${HAS_MEDIA ? "leaf-alt" : "blob-c"}`} aria-hidden="true" />
+          <div className={`absolute inset-1 overflow-hidden bg-sky-soft ring-4 ring-white ${HAS_MEDIA ? "leaf" : "blob-c"}`}>
+            <HeroVisual sizes="100vw" compact />
           </div>
           <Rainbow className="absolute -top-5 -left-3 w-20 animate-float" />
           <Star className="absolute -top-2 right-6 w-7 animate-twinkle" />

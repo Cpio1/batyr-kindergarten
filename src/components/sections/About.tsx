@@ -4,8 +4,9 @@ import Image from "next/image";
 import { Baby, Clock, Languages, Sparkles, Users, UtensilsCrossed } from "lucide-react";
 import { Cloud, Dots, Flower, Heart, Sparkle, Star } from "../decor/Shapes";
 import { SectionHeading } from "../ui/SectionHeading";
-import { useT } from "@/lib/i18n";
+import { useLang, useT } from "@/lib/i18n";
 import { aboutPhoto } from "@/lib/media";
+import { sitePhotos, type SitePhoto } from "@/lib/photos";
 import { withBasePath } from "@/lib/site";
 
 const FACT_STYLE: Record<string, { icon: typeof Baby; tone: string; shape: string }> = {
@@ -48,8 +49,71 @@ function LetterBlocks({ small = false }: { small?: boolean }) {
   );
 }
 
+function Pic({ photo, sizes, className = "" }: { photo: SitePhoto; sizes: string; className?: string }) {
+  const [lang] = useLang();
+  return (
+    <Image
+      src={withBasePath(photo.src)}
+      alt={photo.alt[lang]}
+      width={photo.width}
+      height={photo.height}
+      sizes={sizes}
+      className={`size-full object-cover ${className}`}
+      style={{ objectPosition: photo.focus }}
+    />
+  );
+}
+
+/** Коллаж из реальных фото детского сада: большое фото-арка + два маленьких в «пузырях». */
+function Collage({ mobile = false }: { mobile?: boolean }) {
+  const { main, small } = sitePhotos.about;
+  const [a, b] = small;
+  if (!main) return null;
+  if (mobile) {
+    return (
+      <div className="relative mx-auto w-full max-w-[460px] pb-6">
+        <div className="absolute -inset-2 bottom-4 rounded-[36px_36px_36px_90px] bg-mint" aria-hidden="true" />
+        <div className="relative aspect-[16/11] overflow-hidden rounded-[32px_32px_32px_84px] bg-sky-soft ring-4 ring-white">
+          <Pic photo={main} sizes="100vw" />
+        </div>
+        {a && (
+          <div className="absolute right-3 bottom-0 aspect-square w-[34%] overflow-hidden pebble bg-sky-soft shadow-lift ring-4 ring-white">
+            <Pic photo={a} sizes="160px" />
+          </div>
+        )}
+        <Star className="absolute -top-3 right-5 w-8 animate-twinkle" />
+        <Heart className="absolute bottom-3 left-[44%] w-6 animate-float" />
+      </div>
+    );
+  }
+  return (
+    <div className="relative mx-auto aspect-[5/6] w-full max-w-[min(420px,calc((100svh-var(--header-h)-110px)*5/6))]">
+      <div className="absolute top-0 left-[4%] h-[82%] w-[76%]">
+        <div className="absolute -inset-3 arch bg-mint" aria-hidden="true" />
+        <div className="absolute inset-0 overflow-hidden arch bg-sky-soft ring-4 ring-white">
+          <Pic photo={main} sizes="340px" />
+        </div>
+      </div>
+      {a && (
+        <div className="absolute right-0 bottom-0 aspect-square w-[48%] animate-float-slow overflow-hidden pebble bg-sky-soft shadow-lift ring-[6px] ring-white">
+          <Pic photo={a} sizes="210px" />
+        </div>
+      )}
+      {b && (
+        <div className="absolute top-[6%] -right-[2%] aspect-[4/3] w-[34%] rotate-6 overflow-hidden rounded-[22px] bg-sky-soft shadow-lift ring-4 ring-white">
+          <Pic photo={b} sizes="150px" />
+        </div>
+      )}
+      <Star className="absolute -top-4 left-[38%] w-10 animate-twinkle" />
+      <Flower className="absolute bottom-[10%] -left-4 w-11 animate-sway" color="#72C9F8" />
+      <Heart className="absolute right-[44%] bottom-[2%] w-7 animate-float" />
+    </div>
+  );
+}
+
 function Visual({ mobile = false }: { mobile?: boolean }) {
   const t = useT();
+  if (!aboutPhoto && sitePhotos.about.main) return <Collage mobile={mobile} />;
   if (aboutPhoto) {
     return (
       <div className={`relative mx-auto ${mobile ? "aspect-[4/3] w-full" : "aspect-[4/5] w-full max-w-[400px] max-h-[calc(100svh-var(--header-h)-120px)]"}`}>

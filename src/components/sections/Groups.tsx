@@ -4,7 +4,8 @@ import Image from "next/image";
 import { Check, Info } from "lucide-react";
 import { Cloud, Sparkle, Squiggle, Star, Wave } from "../decor/Shapes";
 import { SectionHeading } from "../ui/SectionHeading";
-import { useT } from "@/lib/i18n";
+import { useLang, useT } from "@/lib/i18n";
+import { sitePhotos } from "@/lib/photos";
 import { withBasePath } from "@/lib/site";
 import { stock } from "@/lib/stock";
 
@@ -15,8 +16,21 @@ const CARDS = [
   { top: "bg-mint", soft: "bg-mint-soft", check: "text-mint-deep", shape: "rounded-[28px_28px_80px_28px]", num: "bg-white text-mint-deep" },
 ] as const;
 
+/** Реальное фото группы (src/lib/photos.ts), если его нет — прежнее фото для примера. */
+function useGroupPhoto() {
+  const t = useT();
+  const [lang] = useLang();
+  return (i: number) => {
+    const real = sitePhotos.groups[i];
+    if (real) return { src: real.src, width: real.width, height: real.height, alt: real.alt[lang], focus: real.focus };
+    const s = stock.groups[i];
+    return { src: s.src, width: s.width, height: s.height, alt: t.groups.photoAlts[i], focus: "50% 50%" };
+  };
+}
+
 export function Groups() {
   const t = useT();
+  const photo = useGroupPhoto();
   return (
     <section id="groups" aria-labelledby="groups-title" className="section bg-white">
       <Wave className="absolute inset-x-0 -top-px h-6 w-full md:h-10" color="#FFF9ED" flip />
@@ -39,17 +53,19 @@ export function Groups() {
         <ul className="mt-8 hidden gap-5 md:grid md:grid-cols-3 lg:mt-[clamp(20px,4vh,40px)] lg:gap-7">
           {t.groups.items.map((g, i) => {
             const c = CARDS[i];
+            const p = photo(i);
             return (
               <li key={g.name} data-reveal style={{ ["--reveal-delay" as string]: `${i * 90}ms` }} className="group card card-hover overflow-hidden">
-                <div className={`relative h-[clamp(150px,22vw,190px)] p-2 lg:h-[clamp(110px,18vh,190px)] ${c.top} ${c.shape}`}>
+                <div className={`relative h-[clamp(150px,22vw,200px)] p-2 lg:h-[clamp(130px,21vh,210px)] ${c.top} ${c.shape}`}>
                   <div className={`relative size-full overflow-hidden ${c.shape}`}>
                     <Image
-                      src={withBasePath(stock.groups[i].src)}
-                      alt={t.groups.photoAlts[i]}
-                      width={stock.groups[i].width}
-                      height={stock.groups[i].height}
+                      src={withBasePath(p.src)}
+                      alt={p.alt}
+                      width={p.width}
+                      height={p.height}
                       sizes="(min-width: 1024px) 380px, 33vw"
                       className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      style={{ objectPosition: p.focus }}
                     />
                   </div>
                   <Sparkle className="absolute top-4 left-5 w-5 animate-twinkle drop-shadow" color="#fff" />
@@ -77,16 +93,18 @@ export function Groups() {
         <ul className="mt-6 grid gap-3 md:hidden">
           {t.groups.items.map((g, i) => {
             const c = CARDS[i];
+            const p = photo(i);
             return (
               <li key={g.name} data-reveal className="card flex items-stretch overflow-hidden rounded-[26px]">
-                <div className={`relative w-[108px] shrink-0 p-1.5 ${c.top}`}>
+                <div className={`relative w-[clamp(108px,32vw,140px)] shrink-0 p-1.5 ${c.top}`}>
                   <Image
-                    src={withBasePath(stock.groups[i].src)}
-                    alt={t.groups.photoAlts[i]}
-                    width={stock.groups[i].width}
-                    height={stock.groups[i].height}
-                    sizes="108px"
+                    src={withBasePath(p.src)}
+                    alt={p.alt}
+                    width={p.width}
+                    height={p.height}
+                    sizes="124px"
                     className="size-full rounded-[20px_20px_20px_6px] object-cover"
+                    style={{ objectPosition: p.focus }}
                   />
                 </div>
                 <div className="min-w-0 flex-1 p-3.5">

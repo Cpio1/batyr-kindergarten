@@ -218,6 +218,10 @@ img { -webkit-user-drag: none; }
   .blob-b { border-radius: 42% 58% 62% 38% / 46% 40% 60% 54%; }
   .blob-c { border-radius: 50% 50% 46% 54% / 60% 58% 42% 40%; }
   .arch { border-radius: 999px 999px 32px 32px; }
+  /* «Лист» — для широких фото: углы скруглены по-разному, но лица у краёв кадра не срезаются */
+  .leaf { border-radius: clamp(48px, 9vw, 120px) 30px clamp(48px, 9vw, 120px) 30px; }
+  .leaf-alt { border-radius: 30px clamp(48px, 9vw, 120px) 30px clamp(48px, 9vw, 120px); }
+  .pebble { border-radius: 46% 54% 50% 50% / 52% 48% 52% 48%; }
 
   /* Точечный фон */
   .dots-bg {

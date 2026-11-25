@@ -1,9 +1,11 @@
 // Сканирует папки с фото и документами и записывает список файлов (с размерами изображений)
 // в src/generated/media.json. Запускается автоматически перед `npm run dev` и `npm run build`.
 //
-// • Фото первого экрана:  main-page.(png|jpg|jpeg|webp)  — в public/ или public/images/
+// • Фото первого экрана:  main-page.(png|jpg|jpeg|webp)  — в public/, public/images/ или public/images/gallery/
+// • Видео первого экрана: main-page2.(mp4|webm|mov)      — там же или в public/videos/ (показывается вместо фото)
 // • Фото раздела «О нас»: main-page2.(png|jpg|jpeg|webp) — там же
-// • Галерея:   любые PNG / JPG / WebP из public/images/gallery (сортировка по имени: 1, 2, 10…)
+// • Галерея:   любые PNG / JPG / WebP из public/images/gallery (сортировка по имени: 1, 2, 10…),
+//              кроме main-page* — они уже стоят на первом экране
 // • Документы: PDF / DOCX / XLSX / изображения из public/documents
 // Если файла нет — сайт показывает иллюстрацию или аккуратное сообщение, а не битую ссылку.
 import { readdir, readFile, mkdir, stat, writeFile } from "node:fs/promises";
@@ -90,10 +92,28 @@ async function images(dir, filter = IMAGE) {
   return items.sort(byName);
 }
 
-const pick = async (re) => (await images("", re))[0] ?? (await images("images", re))[0] ?? null;
+const SPOTS = ["", "images", "images/gallery"];
+async function pick(re) {
+  for (const dir of SPOTS) {
+    const found = (await images(dir, re))[0];
+    if (found) return found;
+  }
+  return null;
+}
 const hero = await pick(/^main-page\.(jpe?g|png|webp)$/i);
 const about = await pick(/^main-page2\.(jpe?g|png|webp)$/i);
-const gallery = await images("images/gallery");
+const gallery = (await images("images/gallery")).filter((p) => !/^main-page\d*\./i.test(p.name));
+
+const VIDEO = /^main-page2\.(mp4|webm|mov)$/i;
+let heroVideo = null;
+for (const dir of [...SPOTS, "videos"]) {
+  const name = (await names(dir)).find((f) => VIDEO.test(f));
+  if (name) {
+    const ext = name.split(".").pop().toLowerCase();
+    heroVideo = { name, src: `${dir ? `/${dir}` : ""}/${encodeURIComponent(name)}`, type: ext === "mov" ? "video/mp4" : `video/${ext}` };
+    break;
+  }
+}
 
 const documents = [];
 for (const name of (await names("documents")).filter((f) => DOC.test(f))) {
@@ -105,9 +125,9 @@ documents.sort(byName);
 await mkdir(path.join(root, "src", "generated"), { recursive: true });
 await writeFile(
   path.join(root, "src", "generated", "media.json"),
-  JSON.stringify({ hero, about, gallery, documents }, null, 2) + "\n",
+  JSON.stringify({ hero, heroVideo, about, gallery, documents }, null, 2) + "\n",
 );
 
 console.log(
-  `[media] hero: ${hero?.src ?? "—"}, about: ${about?.src ?? "—"}, gallery: ${gallery.length} фото, documents: ${documents.length}`,
+  `[media] hero: ${hero?.src ?? "—"}, video: ${heroVideo?.src ?? "—"}, about: ${about?.src ?? "—"}, gallery: ${gallery.length} фото, documents: ${documents.length}`,
 );
